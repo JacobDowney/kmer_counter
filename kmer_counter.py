@@ -89,7 +89,7 @@ def dna_seq_bloom_filter(dna_seq, k):
     seq_matches = {}
     return seq_matches
 
-def dna_seq_big_dictionary(dna_seq, k):
+def dna_seq_set_and_dict(dna_seq, k):
     """
     Returns a dictionary of dna sequences of length k as keys that have appeared
     more than two times with the number of times as the values.
@@ -99,15 +99,14 @@ def dna_seq_big_dictionary(dna_seq, k):
     :param k: Length of dna sequence to search for matches
     :return: A list of dictionaries with name and sequence pairs
     """
-    seq_occured = {}
+    seq_set = set()
+    seq_matches = {}
     for i in range(0, len(dna_seq) - k + 1):
         seq = dna_seq[i:i+k]
-        seq_occured[seq] = seq_occured.get(seq, 0) + 1
-    seq_matches = {}
-    for seq in seq_occured:
-        matches = seq_occured[seq]
-        if matches != 1:
-            seq_matches[seq] = matches
+        if seq in seq_set:
+            seq_matches[seq] = seq_matches.get(seq, 1) + 1
+        else:
+            seq_set.add(seq)
     return seq_matches
 
 
