@@ -2,6 +2,8 @@
 Description of Trie Structure
 """
 
+import sys
+
 class TrieNode:
 
     def __init__(self, end):
@@ -18,6 +20,7 @@ class DnaSeqCounterTrie:
         self.__matches = {}
         self.__depth = k
         self.root = self.getNode(False)
+        self.__mem = sys.getsizeof(self.__base_to_index) + sys.getsizeof(self.root)
 
     def getNode(self, end):
         # Returns a new trie node initialized to all None's
@@ -29,6 +32,7 @@ class DnaSeqCounterTrie:
             index = self.__base_to_index.get(key[i])       # error if k not atcg
             if not crawl.children[index]:
                 crawl.children[index] = self.getNode(i == self.__depth - 1)
+                self.__mem += sys.getsizeof(crawl.children[index])
                 if i == self.__depth - 1:
                     return
             crawl = crawl.children[index]
@@ -39,3 +43,6 @@ class DnaSeqCounterTrie:
 
     def getDictOfMatches(self):
         return self.__matches
+
+    def getMemorySize(self):
+        return self.__mem + sys.getsizeof(self.__matches)
