@@ -3,9 +3,12 @@ Description of Bloom Filter
 """
 
 import sys
+import math
 
 from random import randint
 from random import choice
+
+from bitarray import bitarray
 
 class HashFunction:
 
@@ -20,10 +23,21 @@ class HashFunction:
 
 class BloomFilter:
 
-    def __init__(self, num_bits, num_hash_funcs):
-        primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
-        self.__bit_set = [False] * num_bits
+    def __init__(self, num_elements, k, false_pos_rate):
+        false_pos_rate = 1 / num_elements
+        num_bits = math.ceil((num_elements * math.log(false_pos_rate)) / math.log(1 / (2**math.log(2))))
+        num_hash_funcs = round((num_bits / num_elements) * math.log(2))
+
+        num_combinations = 4**k
+        print(f"Bloom: {k} , comb: {num_combinations}")
+        """print(num_bits)
+        print(num_hash_funcs)"""
+
+        self.__bit_set = bitarray(num_bits)
+        self.__bit_set.setall(False)
         self.__hash_funcs = []
+
+        primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
         for i in range(0, num_hash_funcs):
             hash_func = HashFunction(num_bits, choice(primes), randint(1, 51) - 1)
             self.__hash_funcs.append(hash_func)

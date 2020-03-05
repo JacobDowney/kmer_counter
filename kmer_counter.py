@@ -20,7 +20,7 @@ def read_fasta_seqio(filename):
     """
 
     parsed = SeqIO.parse(filename, "fasta")
-    print parsed
+    print(parsed)
 
 def read_fasta_lbl(filename):
     """
@@ -84,6 +84,7 @@ def dna_seq_counter_trie(dna_seq, k):
     memory_used = sys.getsizeof(trie) + trie.getMemorySize()
     return trie.getDictOfMatches(), memory_used
 
+
 # Probabilistic data structure conceived by Burton Howard Bloom in 1970
 # Tests whether an element is a member of a set
 
@@ -105,10 +106,10 @@ def dna_seq_bloom_filter(dna_seq, k):
     """
     Description
     """
-    num_bits = 1048576
+    num_bits = 2**22
     num_hash_funcs = 7
     seq_matches = {}
-    bloom_filter = BloomFilter(num_bits, num_hash_funcs)
+    bloom_filter = BloomFilter(len(dna_seq), k, 0.00005)
     for i in range(0, len(dna_seq) - k + 1):
         seq = dna_seq[i:i+k]
         if bloom_filter.is_present_or_insert(seq):

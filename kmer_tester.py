@@ -13,26 +13,35 @@ from kmer_counter import dna_seq_bloom_filter
 
 
 def main():
-    run_k_start_finish(2, 51)
-
-
-def run_k(k):
-    dna_seq = dna_full.replace("\n", "")
-    func_names = ["dna_seq_set_and_dict", "dna_seq_counter_trie"]
-    functions = [dna_seq_set_and_dict, dna_seq_counter_trie]
-    func_times, func_memories, func_results = run_functions(functions, dna_seq, k)
-
-    for i in range(0, len(func_names)):
-        print "Name: " + str(func_names[i])
-        print "Time: " + str(func_times[i])
-        print "Memory used: " + str(func_memories[i])
-        print ""
-
-
-def run_k_start_finish(start, finish):
-    dna_seq = dna_full.replace("\n", "")
     func_names = ["dna_seq_set_and_dict", "dna_seq_bloom_filter"]
     functions = [dna_seq_set_and_dict, dna_seq_bloom_filter]
+
+    dna_seq = dna_full.replace("\n", "")
+
+    run_k_start_finish(func_names, functions, dna_seq, 2, 35)
+    #run_k(func_names, functions, dna_seq, 26)
+
+
+def run_k(func_names, functions, dna_seq, k):
+    func_times = []
+    func_mems = []
+    func_results = []
+
+    for func in functions:
+        start_time = time.time()
+        res_, mem_ = func(dna_seq, k)
+        func_times.append(time.time() - start_time)
+        func_mems.append(mem_)
+        func_results.append(res_)
+
+    for i in range(0, len(func_names)):
+        #print "{} : {} : {}".format(func_names[i], func_times[i], func_mems[i])
+        #print(func_results[i])
+        print(len(func_results[i]))
+    #print(func_results[0])
+
+
+def run_k_start_finish(func_names, functions, dna_seq, start, finish):
     func_times = []
     func_mems = []
     func_results = []
@@ -54,28 +63,14 @@ def run_k_start_finish(start, finish):
     name = "k  | "
     for func_name in func_names:
         name += func_name + "       "
-    print name
+    print(name)
     for i in range(0, len(func_times[0])):
         line = ("%02d | " % (i + start))
         for j in range(0, len(functions)):
-            line += ("%5.3f , %12d" % (func_times[j][i], func_mems[j][i]))
+            line += ("%5.3f , %12d" % (func_times[j][i], len(func_results[j][i])))
             if j != len(functions) - 1:
                 line += "   |   "
-        print line
-
-
-def run_functions(functions, dna_seq, k):
-    func_times = []
-    func_results = []
-    func_memories = []
-
-    for i in range(0, len(functions)):
-        start = time.time()
-        res_, mem_ = functions[i](dna_seq, k)
-        func_results.append(res_)
-        func_memories.append(mem_)
-        func_times.append(time.time() - start)
-    return func_times, func_memories, func_results
+        print(line)
 
 
 
