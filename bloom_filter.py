@@ -28,11 +28,6 @@ class BloomFilter:
         num_bits = math.ceil((num_elements * math.log(false_pos_rate)) / math.log(1 / (2**math.log(2))))
         num_hash_funcs = round((num_bits / num_elements) * math.log(2))
 
-        num_combinations = 4**k
-        print(f"Bloom: {k} , comb: {num_combinations}")
-        """print(num_bits)
-        print(num_hash_funcs)"""
-
         self.__bit_set = bitarray(num_bits)
         self.__bit_set.setall(False)
         self.__hash_funcs = []

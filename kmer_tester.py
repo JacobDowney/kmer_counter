@@ -18,7 +18,7 @@ def main():
 
     dna_seq = dna_full.replace("\n", "")
 
-    run_k_start_finish(func_names, functions, dna_seq, 2, 35)
+    run_k_start_finish(func_names, functions, dna_seq, 2, 34)
     #run_k(func_names, functions, dna_seq, 26)
 
 
@@ -64,6 +64,18 @@ def run_k_start_finish(func_names, functions, dna_seq, start, finish):
     for func_name in func_names:
         name += func_name + "       "
     print(name)
+    for i in range(0, finish - start):
+        line = "%02d | " % (i + start)
+        line += f"{format(func_times[0][i], '5.3f')} , {format(func_times[1][i], '5.3f')} ::: "
+        line += f"{len(func_results[1][i])} , {len(func_results[0][i])}"
+        print(line)
+    #print(func_results[1][finish - start - 1])
+
+    """
+    name = "k  | "
+    for func_name in func_names:
+        name += func_name + "       "
+    print(name)
     for i in range(0, len(func_times[0])):
         line = ("%02d | " % (i + start))
         for j in range(0, len(functions)):
@@ -71,6 +83,7 @@ def run_k_start_finish(func_names, functions, dna_seq, start, finish):
             if j != len(functions) - 1:
                 line += "   |   "
         print(line)
+    """
 
 
 
