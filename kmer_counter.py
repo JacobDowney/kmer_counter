@@ -10,6 +10,8 @@ import argparse
 from dna_seq_counter_trie import DnaSeqCounterTrie
 from bloom_filter import BloomFilter
 
+import argparse
+
 from dna import dna_full
 from dna import dna_short
 #from Bio.Seq import Seq
@@ -142,7 +144,42 @@ def dna_seq_set_and_dict(dna_seq, k):
     memory_used = sys.getsizeof(seq_set) + sys.getsizeof(seq_matches)
     return seq_matches, memory_used
 
+def parse_fasta(filename):
+    try:
+        file = open(filename, 'r')
+    except OSError:
+        print(f"Count not open/read file: {args.filename}")
+        sys.exit()
+    dna_seqs = []
+    with file:
+        seqs = file.read().split('>')[1:]
+        for seq in seqs:
+            name_seq = seq.split('\n', 1)
+            dna_seqs.append((name_seq[0], name_seq[1].replace('\n', '')))
+    return dna_seqs
 
 
+def main():
+    parser = argparse.ArgumentParser(description="Process fna and k arguments")
+    parser.add_argument("filename", help="The fasta file to process", type=str)
+    parser.add_argument("k", help="The length of kmer to count", type=int)
+    parser.add_argument("-o", "--output", help="Output the kmer counts to a file",
+                        action="store_true")
+    args = parser.parse_args()
+
+    dna_seqs = parse_fasta(args.filename)
+    kmers = {}
+    for dna_seq in dna_seqs:
+        kmer = dna_seq_set_and_dict(dna_seq[1], args.k)
+        kmers[dna_seq[0]] = kmer
+    print(kmers)
+    if args.output:
+        f = open("kmer_count.txt", "a")
+        f.write(f"{kmers}\n")
+
+
+
+if __name__ == "__main__":
+    main()
 
 # end
