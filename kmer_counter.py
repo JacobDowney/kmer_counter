@@ -2,64 +2,11 @@
 Description of kmer_counter
 """
 
-import time
-
 import os
 import sys
 import argparse
 from dna_seq_counter_trie import DnaSeqCounterTrie
 from bloom_filter import BloomFilter
-
-import argparse
-
-from dna import dna_full
-from dna import dna_short
-#from Bio.Seq import Seq
-
-def read_fasta_seqio(filename):
-    """
-    Description
-    """
-
-    parsed = SeqIO.parse(filename, "fasta")
-    print(parsed)
-
-def read_fasta_lbl(filename):
-    """
-    Read a fasta file and return a list of dictionaries with name and sequence
-    pairs.
-    :param filename: The file name to read from
-    :return: A list of dictionaries with name and sequence pairs
-    """
-    """
-    list_of_sequences = []
-    if os.path.exists(filename):
-        try:
-            file = open(filename, 'r')
-            while True:
-                char = file.read(1)
-                if not char:
-                    break
-                if char == "\n":
-                    continue
-                if char == ">":
-
-        except IOError as e:
-            print "Unable to open file: " + filename
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-
-    return list_of_sequences
-
-
-
-    try:
-        if filename.endswith('fna'):
-            file = open(filename, 'r')
-    except IO
-    file_contents = open(filename).read()
-    return file_contents
-    """
 
 
 def kmer_counter(dna_sequence, k):
