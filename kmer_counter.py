@@ -13,7 +13,7 @@ def kmer_counter(dna_sequence, k):
     """
     Description
     """
-    brute_force(dna_sequence)
+    dna_seq_set_and_dict(dna_sequence, k)
 
 
 ### Don't know Space Complexity yet ###
@@ -108,6 +108,10 @@ def parse_fasta(filename):
 
 def main():
     parser = argparse.ArgumentParser(description="Process fna and k arguments")
+    kmer_function_group = parser.add_mutually_exclusive_group()
+    kmer_function_group.add_argument("-t", "--trie", action="store_true")
+    kmer_function_group.add_argument("-b", "--bloom_filter", action="store_true")
+    kmer_function_group.add_argument("-d", "--dictionary", action="store_true")
     parser.add_argument("filename", help="The fasta file to process", type=str)
     parser.add_argument("k", help="The length of kmer to count", type=int)
     parser.add_argument("-o", "--output", help="Output the kmer counts to a file",
@@ -117,7 +121,15 @@ def main():
     dna_seqs = parse_fasta(args.filename)
     kmers = {}
     for dna_seq in dna_seqs:
-        kmer = dna_seq_set_and_dict(dna_seq[1], args.k)
+        # Possibly use an Action class to call functions
+        if args.trie:
+            kmer = dna_seq_counter_trie(dna_seq[1], args.k)
+        elif args.bloom_filter:
+            kmer = dna_seq_bloom_filter(dna_seq[1], args.k)
+        elif args.dictionary:
+            kmer = dna_seq_set_and_dict(dna_seq[1], args.k)
+        else:
+            kmer = kmer_counter(dna_seq[1], args.k)
         kmers[dna_seq[0]] = kmer
     print(kmers)
     if args.output:
