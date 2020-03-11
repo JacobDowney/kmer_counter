@@ -11,9 +11,9 @@ from bloom_filter import BloomFilter
 
 def kmer_counter(dna_sequence, k):
     """
-    Description
+    Uses the best kmer counting function and return its result
     """
-    dna_seq_set_and_dict(dna_sequence, k)
+    return dna_seq_set_and_dict(dna_sequence, k)
 
 
 ### Don't know Space Complexity yet ###
@@ -21,8 +21,8 @@ def dna_seq_counter_trie(dna_seq, k):
     """
     Returns a dictionary of dna sequences of length k as keys that have appeared
     more than two times with the number of times as the values.
-    Time Complexity: O(nk)
-    Space Complexity: O(n) or O(4^k) at most ????
+    :Time Complexity: O(nk)
+    :Space Complexity: O(n) or O(4^k) at most ????
     :param dna_seq: A dna sequence string to be analyzed
     :param k: Length of dna sequence to search for matches
     :return: A list of dictionaries with name and sequence pairs
@@ -54,9 +54,10 @@ def dna_seq_counter_trie(dna_seq, k):
 def dna_seq_bloom_filter(dna_seq, k):
     """
     Description
+    :param dna_seq: A dna sequence string to be analyzed
+    :param k: Length of dna sequence to search for matches
+    :return: A list of dictionaries with name and sequence pairs
     """
-    num_bits = 2**22
-    num_hash_funcs = 7
     seq_matches = {}
     bloom_filter = BloomFilter(len(dna_seq), k, 0.00005)
     for i in range(0, len(dna_seq) - k + 1):
@@ -66,6 +67,7 @@ def dna_seq_bloom_filter(dna_seq, k):
     memory_used = bloom_filter.get_memory_size() + sys.getsizeof(seq_matches)
     return seq_matches, memory_used
 
+
 # Problems:
 # Space is very large
 # Not really O(1) when very large bc probing is O(m) or O(logm) w/ m collisions
@@ -74,8 +76,8 @@ def dna_seq_set_and_dict(dna_seq, k):
     """
     Returns a dictionary of dna sequences of length k as keys that have appeared
     more than two times with the number of times as the values.
-    Time Complexity: O(n)
-    Space Complexity: O(n) ???
+    :Time Complexity: O(n)
+    :Space Complexity: O(n)
     :param dna_seq: A dna sequence string to be analyzed
     :param k: Length of dna sequence to search for matches
     :return: A list of dictionaries with name and sequence pairs
@@ -91,7 +93,15 @@ def dna_seq_set_and_dict(dna_seq, k):
     memory_used = sys.getsizeof(seq_set) + sys.getsizeof(seq_matches)
     return seq_matches, memory_used
 
+
 def parse_fasta(filename):
+    """
+    Parses the fasta file to return a list of tuples containing the dna sequence
+    name and it's full sequence following with all new line characters removed
+    :param filename: The fasta file that is meant to be parsed
+    :return: A list of tuples containing (name_of_dna_seq, dna_seq)
+    :rtype: list of tuples
+    """
     try:
         file = open(filename, 'r')
     except OSError:
@@ -107,11 +117,17 @@ def parse_fasta(filename):
 
 
 def main():
+    """
+    Parses arguments and uses the appropriate kmer counter function to count the
+    kmers of length k for a specific fasta file.
+    """
     parser = argparse.ArgumentParser(description="Process fna and k arguments")
+
     kmer_function_group = parser.add_mutually_exclusive_group()
     kmer_function_group.add_argument("-t", "--trie", action="store_true")
     kmer_function_group.add_argument("-b", "--bloom_filter", action="store_true")
     kmer_function_group.add_argument("-d", "--dictionary", action="store_true")
+
     parser.add_argument("filename", help="The fasta file to process", type=str)
     parser.add_argument("k", help="The length of kmer to count", type=int)
     parser.add_argument("-o", "--output", help="Output the kmer counts to a file",
@@ -121,16 +137,14 @@ def main():
     dna_seqs = parse_fasta(args.filename)
     kmers = {}
     for dna_seq in dna_seqs:
-        # Possibly use an Action class to call functions
         if args.trie:
-            kmer = dna_seq_counter_trie(dna_seq[1], args.k)
+            kmers[dna_seq[0]] = dna_seq_counter_trie(dna_seq[1], args.k)
         elif args.bloom_filter:
-            kmer = dna_seq_bloom_filter(dna_seq[1], args.k)
+            kmers[dna_seq[0]] = dna_seq_bloom_filter(dna_seq[1], args.k)
         elif args.dictionary:
-            kmer = dna_seq_set_and_dict(dna_seq[1], args.k)
+            kmers[dna_seq[0]] = dna_seq_set_and_dict(dna_seq[1], args.k)
         else:
-            kmer = kmer_counter(dna_seq[1], args.k)
-        kmers[dna_seq[0]] = kmer
+            kmers[dna_seq[0]] = kmer_counter(dna_seq[1], args.k)
     print(kmers)
     if args.output:
         f = open("kmer_count.txt", "a")
