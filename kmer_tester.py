@@ -4,22 +4,23 @@ Description of algorithm tester
 
 import time
 
-from dna import dna_full
-from dna import dna_short
 
+from kmer_counter import parse_fasta
 from kmer_counter import dna_seq_set_and_dict
 from kmer_counter import dna_seq_counter_trie
 from kmer_counter import dna_seq_bloom_filter
+from kmer_counter import dna_seq_my_bloom_filter
+
 
 
 def main():
-    func_names = ["dna_seq_set_and_dict", "dna_seq_bloom_filter"]
-    functions = [dna_seq_set_and_dict, dna_seq_bloom_filter]
+    func_names = ["dna_seq_bloom_filter", "dna_seq_my_bloom_filter"]
+    functions = [dna_seq_bloom_filter, dna_seq_my_bloom_filter]
 
-    dna_seq = dna_full.replace("\n", "")
-
-    run_k_start_finish(func_names, functions, dna_seq, 2, 34)
-    #run_k(func_names, functions, dna_seq, 26)
+    dna_seqs = parse_fasta("dna_sequence.fna")
+    kmers = {}
+    for dna_seq in dna_seqs:
+        run_k_start_finish(func_names, functions, dna_seq[1], 3, 34)
 
 
 def run_k(func_names, functions, dna_seq, k):
@@ -60,16 +61,20 @@ def run_k_start_finish(func_names, functions, dna_seq, start, finish):
         func_mems.append(f_mems)
         func_results.append(f_results)
 
+    tot_time = 0
     name = "k  | "
     for func_name in func_names:
         name += func_name + "       "
     print(name)
     for i in range(0, finish - start):
+        tot_time += func_times[1][i]
         line = "%02d | " % (i + start)
         line += f"{format(func_times[0][i], '5.3f')} , {format(func_times[1][i], '5.3f')} ::: "
-        line += f"{len(func_results[1][i])} , {len(func_results[0][i])}"
+        line += f"{len(func_results[0][i])} , {len(func_results[1][i])}"
         print(line)
     #print(func_results[1][finish - start - 1])
+
+    print(tot_time)
 
     """
     name = "k  | "

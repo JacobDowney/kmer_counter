@@ -21,8 +21,9 @@ class HashFunction:
         return ((((hash(word) % self.__num_bits) * self.__prime) % self.__num_bits) * self.__odd) % self.__num_bits
 
 
-class BloomFilter:
+class MyBloomFilter:
 
+    # Why does the num of expected repititions or matches not matter in formula?
     def __init__(self, num_elements, k, false_pos_rate):
         false_pos_rate = 1 / num_elements
         num_bits = math.ceil((num_elements * math.log(false_pos_rate)) / math.log(1 / (2**math.log(2))))
@@ -34,7 +35,7 @@ class BloomFilter:
 
         primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
         for i in range(0, num_hash_funcs):
-            hash_func = HashFunction(num_bits, choice(primes), randint(1, 51) - 1)
+            hash_func = HashFunction(num_bits, choice(primes), (randint(1, 51) * 2) - 1)
             self.__hash_funcs.append(hash_func)
 
     def is_present_or_insert(self, word):
