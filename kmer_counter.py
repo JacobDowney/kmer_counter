@@ -7,6 +7,7 @@ import sys
 import argparse
 from dna_seq_counter_trie import DnaSeqCounterTrie
 from my_bloom_filter import MyBloomFilter
+from old_bloom_filter import OldBloomFilter
 
 from bloom_filter import BloomFilter
 
@@ -18,7 +19,6 @@ def kmer_counter(dna_sequence, k):
     return dna_seq_set_and_dict(dna_sequence, k)
 
 
-### Don't know Space Complexity yet ###
 def dna_seq_counter_trie(dna_seq, k):
     """
     Returns a dictionary of dna sequences of length k as keys that have appeared
@@ -35,6 +35,7 @@ def dna_seq_counter_trie(dna_seq, k):
     memory_used = sys.getsizeof(trie) + trie.getMemorySize()
     return trie.getDictOfMatches(), memory_used
 
+
 def dna_seq_bloom_filter(dna_seq, k):
     seq_matches = {}
     error_r = 1 / len(dna_seq)
@@ -48,8 +49,24 @@ def dna_seq_bloom_filter(dna_seq, k):
                 seq_matches[seq] = 2
         else:
             bloom_filter.add(seq)
-
     return seq_matches, 0
+
+def dna_seq_my_bloom_filter(dna_seq, k):
+    """
+    Returns a dictionary of dna sequences of length k as keys that have appeared
+    more than two times with the number of times as the values.
+    :param dna_seq: A dna sequence string to be analyzed
+    :param k: Length of dna sequence to search for matches
+    :return: A list of dictionaries with name and sequence pairs
+    """
+    seq_matches = {}
+    bloom_filter = MyBloomFilter(len(dna_seq), k)
+    for i in range(0, len(dna_seq) - k + 1):
+        seq = dna_seq[i:i+k]
+        if bloom_filter.is_present_or_insert(seq):
+            seq_matches[seq] = seq_matches.get(seq, 1) + 1
+    return seq_matches, -1
+
 
 # Probabilistic data structure conceived by Burton Howard Bloom in 1970
 # Tests whether an element is a member of a set
@@ -68,7 +85,7 @@ def dna_seq_bloom_filter(dna_seq, k):
 # 40 million records -> 1 in 10million mistake, 159mb storage, 23 hash functions
 
 # More than 2 hash functions
-def dna_seq_my_bloom_filter(dna_seq, k):
+def dna_seq_old_bloom_filter(dna_seq, k):
     """
     Returns a dictionary of dna sequences of length k as keys that have appeared
     more than two times with the number of times as the values.
@@ -77,15 +94,22 @@ def dna_seq_my_bloom_filter(dna_seq, k):
     :return: A list of dictionaries with name and sequence pairs
     """
     seq_matches = {}
-    bloom_filter = MyBloomFilter(len(dna_seq), k, 0.00005)
+    bloom_filter = OldBloomFilter(len(dna_seq), k)
+    pp_list = [0, 0, 0]
     for i in range(0, len(dna_seq) - k + 1):
         seq = dna_seq[i:i+k]
-        if bloom_filter.is_present_or_insert(seq):
+        seen, pp = bloom_filter.is_present_or_insert(seq)
+        pp_list[pp] += 1
+        if seen:
             if seq in seq_matches:
                 seq_matches[seq] += 1
             else:
                 seq_matches[seq] = 2
     memory_used = bloom_filter.get_memory_size() + sys.getsizeof(seq_matches)
+    print(f"Correct Positives {pp_list[0]}")
+    print(f"Incorrect Positives {pp_list[1]}")
+    print(f"Correct Negative {pp_list[2]}")
+    print(bloom_filter.get_percent_filled())
     return seq_matches, memory_used
 
 
@@ -108,7 +132,11 @@ def dna_seq_set_and_dict(dna_seq, k):
     for i in range(0, len(dna_seq) - k + 1):
         seq = dna_seq[i:i+k]
         if seq in seq_set:
-            seq_matches[seq] = seq_matches.get(seq, 1) + 1
+            #seq_matches[seq] = seq_matches.get(seq, 1) + 1
+            if seq in seq_matches:
+                seq_matches[seq] += 1
+            else:
+                seq_matches[seq] = 2
         else:
             seq_set.add(seq)
     memory_used = sys.getsizeof(seq_set) + sys.getsizeof(seq_matches)
